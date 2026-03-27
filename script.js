@@ -1,23 +1,3 @@
-tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ink: '#070b14',
-            panel: 'rgba(255,255,255,0.08)',
-            line: 'rgba(255,255,255,0.12)',
-            neon: '#7c3aed',
-            cyan: '#22d3ee',
-            pink: '#f472b6',
-            lime: '#a3e635'
-          },
-          boxShadow: {
-            glow: '0 0 0 1px rgba(255,255,255,0.08), 0 18px 60px rgba(124,58,237,0.25), 0 6px 18px rgba(34,211,238,0.18)',
-            glass: '0 10px 30px rgba(7,11,20,0.35), inset 0 1px 0 rgba(255,255,255,0.08)'
-          }
-        }
-      }
-    };
-
 (function(){
   var params=new URLSearchParams(window.location.search);
   var fields={};
@@ -194,215 +174,37 @@ tailwind.config = {
   });
 })();
 
-const launchDate = new Date('2026-12-12T17:00:00Z');
+// Countdown Timer
+        function updateCountdown() {
+            const launchDate = new Date('2026-12-31T23:59:59').getTime();
+            const now = new Date().getTime();
+            const distance = launchDate - now;
 
-    const countdownEls = {
-      days: document.getElementById('days'),
-      hours: document.getElementById('hours'),
-      minutes: document.getElementById('minutes'),
-      seconds: document.getElementById('seconds')
-    };
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    function pad(value) {
-      return String(value).padStart(2, '0');
-    }
-
-    function updateCountdown() {
-      const now = new Date();
-      const diff = Math.max(0, launchDate.getTime() - now.getTime());
-
-      const totalSeconds = Math.floor(diff / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      countdownEls.days.textContent = String(days).padStart(3, '0');
-      countdownEls.hours.textContent = pad(hours);
-      countdownEls.minutes.textContent = pad(minutes);
-      countdownEls.seconds.textContent = pad(seconds);
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('show');
-        }
-      });
-    }, { threshold: 0.15 });
-
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-
-    const device = document.getElementById('device3d');
-    const shell = document.querySelector('.preview-shell');
-
-    if (device && shell) {
-      shell.addEventListener('mousemove', (e) => {
-        const rect = shell.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        const rotateY = (x - 0.5) * 12;
-        const rotateX = (0.5 - y) * 10;
-        device.style.transform = `rotateX(${12 + rotateX}deg) rotateY(${-10 + rotateY}deg)`;
-      });
-
-      shell.addEventListener('mouseleave', () => {
-        device.style.transform = 'rotateX(12deg) rotateY(-10deg)';
-      });
-    }
-
-    const tabButtons = [...document.querySelectorAll('.tab-button')];
-    const tabPanels = [...document.querySelectorAll('.tab-panel')];
-    let activeTabIndex = 0;
-
-    function activateTab(index) {
-      activeTabIndex = index;
-      tabButtons.forEach((btn, i) => {
-        btn.classList.toggle('active', i === index);
-      });
-      tabPanels.forEach((panel, i) => {
-        panel.classList.toggle('active', i === index);
-      });
-    }
-
-    tabButtons.forEach((btn, index) => {
-      btn.addEventListener('click', () => activateTab(index));
-    });
-
-    setInterval(() => {
-      activateTab((activeTabIndex + 1) % tabButtons.length);
-    }, 4500);
-
-    const quoteCards = [...document.querySelectorAll('.quote-card')];
-    let quoteIndex = 0;
-
-    function cycleQuotes() {
-      quoteCards.forEach((card, i) => {
-        card.classList.toggle('active', i === quoteIndex);
-      });
-      quoteIndex = (quoteIndex + 1) % quoteCards.length;
-    }
-
-    cycleQuotes();
-    setInterval(cycleQuotes, 2800);
-
-    const toast = document.getElementById('toast');
-    const toastText = document.getElementById('toastText');
-    let toastTimer;
-
-    function showToast(message) {
-      toastText.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2600);
-    }
-
-    const waitlistForm = document.getElementById('waitlistForm');
-    const waitlistName = document.getElementById('waitlistName');
-    const waitlistEmail = document.getElementById('waitlistEmail');
-    const waitlistRole = document.getElementById('waitlistRole');
-    const checkoutName = document.getElementById('checkoutName');
-    const checkoutEmail = document.getElementById('checkoutEmail');
-
-    waitlistForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const name = waitlistName.value.trim();
-      const email = waitlistEmail.value.trim();
-      const role = waitlistRole.value;
-
-      if (!name || !email) {
-        showToast('Please add your name and email.');
-        return;
-      }
-
-      const current = JSON.parse(localStorage.getItem('pulseframe_waitlist') || '[]');
-      current.push({
-        name,
-        email,
-        role,
-        joinedAt: new Date().toISOString()
-      });
-      localStorage.setItem('pulseframe_waitlist', JSON.stringify(current));
-
-      checkoutName.value = name;
-      checkoutEmail.value = email;
-
-      waitlistForm.reset();
-      showToast('You’re on the waitlist. We’ll be in touch.');
-    });
-
-    const plans = {
-      starter: {
-        amountCents: 1900,
-        productName: 'Pulseframe Early Access — Starter',
-        productDescription: 'Starter early-access reservation for Pulseframe'
-      },
-      pro: {
-        amountCents: 4900,
-        productName: 'Pulseframe Early Access — Pro',
-        productDescription: 'Pro early-access reservation for Pulseframe'
-      },
-      founder: {
-        amountCents: 9900,
-        productName: 'Pulseframe Early Access — Founder',
-        productDescription: 'Founder early-access reservation for Pulseframe'
-      }
-    };
-
-    const planCards = document.querySelectorAll('[data-plan-card]');
-    const planButtons = document.querySelectorAll('[data-plan]');
-
-    function markSelected(planKey) {
-      planCards.forEach((card) => {
-        card.classList.toggle('selected', card.getAttribute('data-plan-card') === planKey);
-      });
-    }
-
-    planButtons.forEach((button) => {
-      button.addEventListener('mouseenter', () => markSelected(button.dataset.plan));
-      button.addEventListener('focus', () => markSelected(button.dataset.plan));
-      button.addEventListener('click', () => {
-        const planKey = button.dataset.plan;
-        const name = checkoutName.value.trim();
-        const email = checkoutEmail.value.trim();
-
-        markSelected(planKey);
-
-        if (!name || !email) {
-          showToast('Add your name and email before checkout.');
-          return;
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
         }
 
-        const plan = plans[planKey];
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
 
-        if (typeof window.__processPayment === 'function') {
-          window.__processPayment({
-            amountCents: plan.amountCents,
-            email: email,
-            productName: plan.productName,
-            productDescription: plan.productDescription,
-            name: name,
-            quantity: 1
-          });
-        } else {
-          showToast('Checkout is unavailable in this preview.');
-        }
-      });
-    });
-
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener('click', (e) => {
-        const id = anchor.getAttribute('href');
-        if (!id || id === '#') return;
-        const target = document.querySelector(id);
-        if (!target) return;
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
+        // Email Signup
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('email').value = '';
+                document.getElementById('signupForm').classList.remove('hidden');
+                document.getElementById('successMessage').classList.add('hidden');
+            }, 3000);
+        });
